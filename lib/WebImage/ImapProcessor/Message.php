@@ -94,4 +94,20 @@ class Message {
 			$this->status = $status;
 		}
 	}
+	
+	public function isNormal() {
+		return $this->isStatus(self::STATUS_NORMAL);
+	}
+	
+	public function wasMoved() {
+		return $this->isStatus(self::STATUS_MOVED);
+	}
+	
+	public function wasDeleted() {
+		return $this->isStatus(self::STATUS_DELETED);
+	}
+	
+	protected function isStatus($status) {
+		return $this->getStatus() == $status;
+	}
 }
