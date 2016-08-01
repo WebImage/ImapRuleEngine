@@ -21,9 +21,10 @@ require_once(__DIR__ . DIRECTORY_SEPARATOR . 'autoload.php');
 /**
  * Passed arguments
  **/
-$args = new ArgumentParser($argv, array('c', 'cache'));
+$args = new ArgumentParser($argv, array('c', 'cache', 'd'));
 $config_file = $args->getFlag('c');
 $cache_dir = $args->getFlag('cache');
+$is_debug_mode = $args->isFlagSet('d');
 
 
 /**
@@ -49,13 +50,16 @@ if (!file_exists($cache_dir) || !is_writable($cache_dir)) die('Cache directory m
 /**
  * Check if script is already runnning
  */
-$pid = getmypid();
-$pid_file = $cache_dir . '/' . $argv[0] . '.pid';
-if (file_exists($pid_file)) {
-	$previous_pid = file_get_contents($pid_file);
-	die('This script is still running or may have crashed.  The previous PID was ' . $previous_pid . PHP_EOL);
+if (!$is_debug_mode) {
+	
+	$pid = getmypid();
+	$pid_file = $cache_dir . '/' . $argv[0] . '.pid';
+	if (file_exists($pid_file)) {
+		$previous_pid = file_get_contents($pid_file);
+		die('This script is still running or may have crashed.  The previous PID was ' . $previous_pid . PHP_EOL);
+	}
+	
 }
-
 
 /**
  * Get basic settings from configuration
@@ -114,7 +118,7 @@ $last_uid = $cache->get(CACHE_KEY_LAST_UID);
 while (true) {
 
 	// Mark this process as being in the middle of running
-	file_put_contents($pid_file, $pid);
+	if (!$is_debug_mode) file_put_contents($pid_file, $pid);
 	
 	$messages = null;
 	
@@ -158,7 +162,8 @@ while (true) {
 				
 				if ($rule->matches($ctx)) {
 					$matched_rules[] = $rule_name;
-					$rule->execute($ctx);
+					
+					if (!$is_debug_mode) $rule->execute($ctx);
 				}
 				
 			}
@@ -174,9 +179,17 @@ while (true) {
 	// Update cache
 	file_put_contents($cache_file, serialize($cache));
 	
-	// Mark this process as being safe to CTRL+C out of
-	unlink($pid_file);
 	
+	if ($is_debug_mode) {
+		
+		break;
+		
+	} else {
+		
+		// Mark this process as being safe to CTRL+C out of
+		unlink($pid_file);
+		
+	}
 	sleep(15);
 	
 }

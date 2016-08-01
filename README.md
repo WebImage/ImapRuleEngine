@@ -18,7 +18,7 @@ return array(
     // Password for mailbox
 	'pass' => 'secret',
     // An array of paths to rules files
-	'rules' => glob('/path/to/rule_files/*')
+	'rules' => glob('/path/to/rule_files/*.rule.php')
 );
 ```
 
