@@ -89,7 +89,7 @@ class Message {
 	}*/
 	public function getStatus() { return $this->status; }
 	protected function validStatuses() { return array(self::STATUS_NORMAL, self::STATUS_DELETED, self::STATUS_MOVED); }
-	protected function setStatus($status) {
+	public function setStatus($status) {
 		if (in_array($status, $this->validStatuses())) {
 			$this->status = $status;
 		}
