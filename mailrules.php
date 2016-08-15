@@ -21,10 +21,11 @@ require_once(__DIR__ . DIRECTORY_SEPARATOR . 'autoload.php');
 /**
  * Passed arguments
  **/
-$args = new ArgumentParser($argv, array('c', 'cache', 'd'));
+$args = new ArgumentParser($argv, array('c', 'cache', 'd', 'l'));
 $config_file = $args->getFlag('c');
 $cache_dir = $args->getFlag('cache');
 $is_debug_mode = $args->isFlagSet('d');
+$should_loop = $args->isFlagSet('l');
 
 
 /**
@@ -115,7 +116,7 @@ $last_uid = $cache->get(CACHE_KEY_LAST_UID);
  * Main program loop
  **/
 
-while (true) {
+do {
 
 	// Mark this process as being in the middle of running
 	if (!$is_debug_mode) file_put_contents($pid_file, $pid);
@@ -192,7 +193,7 @@ while (true) {
 	}
 	sleep(15);
 	
-}
+} while ($should_loop);
 
 function get_param(array $params, $key, $default=null) {
 	if (isset($params[$key])) return $params[$key];
