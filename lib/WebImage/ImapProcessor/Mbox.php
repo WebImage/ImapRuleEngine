@@ -12,7 +12,7 @@ class Mbox {
 	private $isBatchMode = false;
 	private $batchActions = array();
 	
-	function __construct($server, $mailbox, $username, $password, Logger $logger=null)
+	function __construct($server, $mailbox, $username, $password, ILogger $logger=null)
 	{
 		$this->server = $server;
 		$this->rootMailbox = $mailbox;

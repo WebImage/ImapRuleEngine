@@ -5,7 +5,7 @@ use WebImage\ImapProcessor\Mbox;
 use WebImage\ImapProcessor\StatusCache;
 use WebImage\ImapProcessor\MessageEvent;
 use WebImage\ImapProcessor\Message;
-use WebImage\ImapProcessor\Logger;
+use WebImage\ImapProcessor\NullLogger;
 
 use WebImage\RuleEngine\AnonymousRule;
 use WebImage\RuleEngine\Context;
@@ -14,7 +14,6 @@ use WebImage\Cli\ArgumentParser;
 define('DIR_INC', __DIR__ . '/inc/');
 define('CACHE_KEY_LAST_UID', 'Last UID');
 define('FOLDER_TRASH', 'INBOX.PHP');
-
 
 require_once(__DIR__ . DIRECTORY_SEPARATOR . 'autoload.php');
 
@@ -47,17 +46,17 @@ if (null === $cache_dir) {
 $cache_dir = rtrim($cache_dir, '/\\');
 if (!file_exists($cache_dir) || !is_writable($cache_dir)) die('Cache directory must be writable: ' . $cache_dir . PHP_EOL);
 
-
 /**
  * Check if script is already runnning
  */
 if (!$is_debug_mode) {
 	
 	$pid = getmypid();
-	$pid_file = $cache_dir . '/' . $argv[0] . '.pid';
+	$pid_file = $cache_dir . '/' . basename($argv[0]) . '.pid';
+	
 	if (file_exists($pid_file)) {
 		$previous_pid = file_get_contents($pid_file);
-		die('This script is still running or may have crashed.  The previous PID was ' . $previous_pid . PHP_EOL);
+		die('This script is still running or may have crashed.  The previous PID was ' . $previous_pid . '.' . PHP_EOL . 'If the program crashed then remove ' . $pid_file . PHP_EOL);
 	}
 	
 }
@@ -90,7 +89,7 @@ $cache_file = rtrim($cache_dir, '/\\') . '/' . sprintf('%s.cache', $key);
  * @var Mbox $mbox
  */
 $cache = file_exists($cache_file) ? unserialize(file_get_contents($cache_file)) : new StatusCache();
-$logger = new Logger();
+$logger = new NullLogger();
 $mbox = new Mbox($server, 'INBOX', $email, $pass, $logger);
 
 
@@ -119,7 +118,13 @@ $last_uid = $cache->get(CACHE_KEY_LAST_UID);
 do {
 
 	// Mark this process as being in the middle of running
-	if (!$is_debug_mode) file_put_contents($pid_file, $pid);
+	if (!$is_debug_mode) {
+		file_put_contents($pid_file, $pid);
+		if (!file_exists($pid_file)) {
+			echo 'Unable to create PID file: ' . $pid_file . PHP_EOL;
+			break;
+		}
+	}
 	
 	$messages = null;
 	
@@ -191,7 +196,7 @@ do {
 		unlink($pid_file);
 		
 	}
-	sleep(15);
+	if ($should_loop) sleep(15);
 	
 } while ($should_loop);
 

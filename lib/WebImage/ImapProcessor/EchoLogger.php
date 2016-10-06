@@ -2,7 +2,7 @@
 
 namespace WebImage\ImapProcessor;
 
-class Logger {
+class EchoLogger implements ILogger {
 	public function log($log) {
 		echo $log . PHP_EOL;
 	}
