@@ -310,7 +310,6 @@ class Mbox {
 		
 		return $headers;
 	}
-	
 	public function getServerString()
 	{
 		return sprintf('{%s:993/imap/ssl}', $this->server);
@@ -329,6 +328,7 @@ class Mbox {
 		{
 			$connect_str = $this->getConnectionString();
 			$this->mp = imap_open($connect_str, $this->username, $this->password);
+			if (!$this->mp) die('Unable to connect to: ' . $connect_str . PHP_EOL);
 		}
 		return $this->mp;
 	}

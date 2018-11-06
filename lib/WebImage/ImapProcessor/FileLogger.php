@@ -2,7 +2,7 @@
 
 namespace WebImage\ImapProcessor;
 
-class FileLogger extends Logger {
+class FileLogger implements ILogger {
 	private $fp;
 	function __construct($file) {
 		$this->fp = fopen($file, 'a+');
