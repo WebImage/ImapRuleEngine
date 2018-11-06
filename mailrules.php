@@ -56,7 +56,7 @@ if (!$is_debug_mode) {
 	
 	if (file_exists($pid_file)) {
 		$previous_pid = file_get_contents($pid_file);
-		die('This script is still running or may have crashed.  The previous PID was ' . $previous_pid . '.' . PHP_EOL . 'If the program crashed then remove ' . $pid_file . PHP_EOL);
+		// die('This script is still running or may have crashed.  The previous PID was ' . $previous_pid . '.' . PHP_EOL . 'If the program crashed then remove ' . $pid_file . PHP_EOL);
 	}
 	
 }
@@ -114,7 +114,7 @@ $last_uid = $cache->get(CACHE_KEY_LAST_UID);
 /**
  * Main program loop
  **/
-
+$already_ran = false;
 do {
 
 	// Mark this process as being in the middle of running
@@ -125,6 +125,10 @@ do {
 			break;
 		}
 	}
+	
+	$n_good = 0;
+	$n_bad = 0;
+	$good_from = array();
 	
 	$messages = null;
 	
@@ -176,7 +180,13 @@ do {
 			$x = count($matched_rules) > 0 ? 'x' : ' ';
 			
 			echo '[' . $x . '] #' . $msg->getUid() . ' ' . date('Y-m-d H:i:s', $msg->getDate()) . ' <' . $msg->getFrom() . '> ' . ' <' . $msg->getTo() . '> ' . $msg->getSubject();
-			if (count($matched_rules) > 0) echo ' [' . implode(', ', $matched_rules) . ']';
+			if (count($matched_rules) > 0) {
+				echo ' [' . implode(', ', $matched_rules) . ']';
+				$n_bad ++;
+			} else {
+				$n_good ++;
+				if (!in_array($msg->getFrom(), $good_from)) $good_from[] = $msg->getFrom();
+			}
 			echo PHP_EOL;
 		}
 		echo PHP_EOL;	
@@ -196,7 +206,30 @@ do {
 		unlink($pid_file);
 		
 	}
+	
+	$apple_notification_format = 'osascript -e \'display notification "%s" with title "%s"\'';
+	sort($good_from);
+	
+	// Display notification
+	if ($n_good > 0 || $n_bad > 0) {
+		if ($n_good > 0) {
+			$notification_body = implode(', ', $good_from);
+			$apple_notification = sprintf($apple_notification_format, $notification_body, 'New Emails');
+			`$apple_notification`;
+
+		} else {
+			$notification_body = sprintf('Good: %s\nBad: %d', implode(', ', $good_from), $n_bad);
+			$apple_notification = sprintf($apple_notification_format, $notification_body, 'Email Spam Report');
+			`$apple_notification`;
+		}		
+	}
+	// Speak new message count
+	if ($n_good > 0 && $already_ran) {
+		`say $n_good new messages`;
+	}
+	
 	if ($should_loop) sleep(15);
+	$already_ran = true;
 	
 } while ($should_loop);
 
