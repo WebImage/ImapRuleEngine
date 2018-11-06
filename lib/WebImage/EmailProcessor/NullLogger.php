@@ -1,6 +1,6 @@
 <?php
 
-namespace WebImage\ImapProcessor;
+namespace WebImage\EmailProcessor;
 
 class NullLogger implements ILogger {
 	public function log($log) {}

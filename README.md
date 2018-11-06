@@ -36,7 +36,7 @@ return array(
         // Evaluate context to determine if message matches rule
 		function(Context $ctx) {
             /**
-             * @var WebImage/ImapProcessor/Message The message being operated on
+             * @var WebImage/EmailProcessor/Message The message being operated on
              **/
 			if ($msg = $ctx->get('message')) {
 				// Conditions to evaluate.  If message matches this rule return true
@@ -45,7 +45,7 @@ return array(
 		},
 		function(Context $ctx) {
             /**
-             * @var WebImage/ImapProcessor/Message The message being operated on
+             * @var WebImage/EmailProcessor/Message The message being operated on
              **/
 			if ($msg = $ctx->get('message')) {
 				// Actions to perform on message

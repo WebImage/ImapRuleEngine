@@ -1,6 +1,6 @@
 <?php 
 
-namespace WebImage\ImapProcessor;
+namespace WebImage\EmailProcessor;
 
 interface ILogger {
 	/**

@@ -1,11 +1,11 @@
 #!/usr/local/env php
 <?php
 
-use WebImage\ImapProcessor\Mbox;
-use WebImage\ImapProcessor\StatusCache;
-use WebImage\ImapProcessor\MessageEvent;
-use WebImage\ImapProcessor\Message;
-use WebImage\ImapProcessor\NullLogger;
+use WebImage\EmailProcessor\Mbox;
+use WebImage\EmailProcessor\StatusCache;
+use WebImage\EmailProcessor\MessageEvent;
+use WebImage\EmailProcessor\Message;
+use WebImage\EmailProcessor\NullLogger;
 
 use WebImage\RuleEngine\AnonymousRule;
 use WebImage\RuleEngine\Context;
